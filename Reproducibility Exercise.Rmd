@@ -1,0 +1,57 @@
+---
+title: "AREC 570 Reproducibility Exercise"
+output: html_document
+date: "October 23rd, 2023"
+---
+
+Basic starting functions
+```{r echo=FALSE}
+rm(list = ls())
+
+data <- read.csv("C:/Users/kelse/OneDrive/Documents/Grad School/AREC 570/Reproducibility_Story/inputs/gdp_52-67.csv")
+
+print(data)
+```
+Create a GDP per Capita column 
+```{r echo=FALSE}
+data$gdppercap <- data$gdp / data$pop
+
+print(data)
+```
+Creating Plots
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+canada_data <- data %>%
+  filter(country == "Canada", year >= 1950, year <= 1969)
+
+data2 <- read.csv("C:/Users/kelse/OneDrive/Documents/Grad School/AREC 570/Reproducibility_Story/inputs/le_52-67.csv")
+
+canada_data2 <- data2 %>% 
+  filter(country == "Canada", year >= 1950, year <= 1969)
+
+library(ggplot2)
+ggplot(canada_data2, aes(x = year)) +
+  geom_line(aes(y = lifeExp, color = "Life Expectancy")) +
+  labs(title = "Life Expectancy Over Time for Canada (1952-1967)",
+       x = "Year",
+       y = "Life Expenctancy")
+```
+```{r echo=FALSE}
+library(ggplot2)
+ggplot(canada_data, aes(x = year)) +
+  geom_line(aes(y = gdppercap, color = "GDP per Capita")) +
+  labs(title = "GDP per Capita Over Time for Canada (1952-1967)",
+       x = "Year",
+       y = "GDP per Capita")
+```
+
+Run Regressions
+
+```{r echo=FALSE}
+df = cbind(canada_data, canada_data2["lifeExp"])
+df = merge(canada_data, canada_data2, by = c("country", "year", "continent"))
+model <- lm(lifeExp ~ gdppercap, data = df)
+
+summary(model)
+```
